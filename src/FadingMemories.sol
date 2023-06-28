@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
-
 import "erc721a/ERC721A.sol";
 import "solady/tokens/ERC2981.sol";
 import "solady/auth/Ownable.sol";
