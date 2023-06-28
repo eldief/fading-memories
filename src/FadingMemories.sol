@@ -92,15 +92,26 @@ contract FadingMemories is ERC721A, Ownable, OperatorFilterer, ERC2981 {
 
         DynamicBufferLib.DynamicBuffer memory buffer;
         buffer.append('{"name":"', bytes(name()), '","description":"In memory of Greta, 29/03/2009-27/06/2023",');
+        buffer.append('"attributes":', _attributes(seed, fadeIntensity), ',');
         buffer.append('"image":"data:image/svg+xml;base64,', _image(seed, fadeIntensity), '"}');
 
         return string(abi.encodePacked("data:application/json;base64,", bytes(Base64.encode(buffer.data))));
     }
 
-    function _image(uint256 seed, uint256 fadeIntensity) internal view returns (bytes memory) {
-        uint256 fadeInteger = fadeIntensity / 10;
-        uint256 fadeDecimal = fadeIntensity - fadeInteger;
+    function _attributes(uint256 seed, uint256 fadeIntensity) internal pure returns (bytes memory) {
         (uint256 gR, uint256 gG, uint256 gB, uint256 bR, uint256 bG, uint256 bB) = _colors(seed);
+
+        DynamicBufferLib.DynamicBuffer memory buffer;
+        buffer.append('[{"trait_type":"Background","value":"rgb(', bytes(bR.toString()), ",", bytes(bG.toString()), ",", bytes(bB.toString()), ')"}');
+        buffer.append(',{"trait_type":"Color","value":"rgb(', bytes(gR.toString()), ",", bytes(gG.toString()), ",", bytes(gB.toString()), ')"}');
+        buffer.append(',{"trait_type":"Fade","value":"', bytes(fadeIntensity.toString()), '"}]');
+        return bytes(buffer.data);
+    }
+
+    function _image(uint256 seed, uint256 fadeIntensity) internal view returns (bytes memory) {       
+        (uint256 gR, uint256 gG, uint256 gB, uint256 bR, uint256 bG, uint256 bB) = _colors(seed); 
+        uint256 fadeInteger = fadeIntensity / 10;
+        uint256 fadeDecimal = fadeIntensity - fadeInteger * 10;
 
         // forgefmt: disable-start
         DynamicBufferLib.DynamicBuffer memory buffer;
