@@ -39,14 +39,9 @@ contract FadingMemories is ERC721A, Ownable, OperatorFilterer, ERC2981 {
     //--------------------------------------//
     //            CONSTRUCTOR               //
     //--------------------------------------//
-    constructor(
-        address chunk0_,
-        address chunk1_,
-        address chunk2_,
-        address chunk3_,
-        address chunk4_,
-        address chunk5_
-    ) ERC721A("Fading Memories", "GRETA") {
+    constructor(address chunk0_, address chunk1_, address chunk2_, address chunk3_, address chunk4_, address chunk5_)
+        ERC721A("Fading Memories", "GRETA")
+    {
         chunk0 = chunk0_;
         chunk1 = chunk1_;
         chunk2 = chunk2_;
@@ -92,7 +87,7 @@ contract FadingMemories is ERC721A, Ownable, OperatorFilterer, ERC2981 {
 
         DynamicBufferLib.DynamicBuffer memory buffer;
         buffer.append('{"name":"', bytes(name()), '","description":"In memory of Greta, 29/03/2009-27/06/2023",');
-        buffer.append('"attributes":', _attributes(seed, fadeIntensity), ',');
+        buffer.append('"attributes":', _attributes(seed, fadeIntensity), ",");
         buffer.append('"image":"data:image/svg+xml;base64,', _image(seed, fadeIntensity), '"}');
 
         return string(abi.encodePacked("data:application/json;base64,", bytes(Base64.encode(buffer.data))));
@@ -102,14 +97,30 @@ contract FadingMemories is ERC721A, Ownable, OperatorFilterer, ERC2981 {
         (uint256 gR, uint256 gG, uint256 gB, uint256 bR, uint256 bG, uint256 bB) = _colors(seed);
 
         DynamicBufferLib.DynamicBuffer memory buffer;
-        buffer.append('[{"trait_type":"Background","value":"rgb(', bytes(bR.toString()), ",", bytes(bG.toString()), ",", bytes(bB.toString()), ')"}');
-        buffer.append(',{"trait_type":"Color","value":"rgb(', bytes(gR.toString()), ",", bytes(gG.toString()), ",", bytes(gB.toString()), ')"}');
+        buffer.append(
+            '[{"trait_type":"Background","value":"rgb(',
+            bytes(bR.toString()),
+            ",",
+            bytes(bG.toString()),
+            ",",
+            bytes(bB.toString()),
+            ')"}'
+        );
+        buffer.append(
+            ',{"trait_type":"Color","value":"rgb(',
+            bytes(gR.toString()),
+            ",",
+            bytes(gG.toString()),
+            ",",
+            bytes(gB.toString()),
+            ')"}'
+        );
         buffer.append(',{"trait_type":"Fade","value":"', bytes(fadeIntensity.toString()), '"}]');
         return bytes(buffer.data);
     }
 
-    function _image(uint256 seed, uint256 fadeIntensity) internal view returns (bytes memory) {       
-        (uint256 gR, uint256 gG, uint256 gB, uint256 bR, uint256 bG, uint256 bB) = _colors(seed); 
+    function _image(uint256 seed, uint256 fadeIntensity) internal view returns (bytes memory) {
+        (uint256 gR, uint256 gG, uint256 gB, uint256 bR, uint256 bG, uint256 bB) = _colors(seed);
         uint256 fadeInteger = fadeIntensity / 10;
         uint256 fadeDecimal = fadeIntensity - fadeInteger * 10;
 
@@ -137,24 +148,15 @@ contract FadingMemories is ERC721A, Ownable, OperatorFilterer, ERC2981 {
         bG = seed >> 32 & 0xFF;
         bB = seed >> 40 & 0xFF;
     }
-    
+
     //--------------------------------------//
     //        ROYALTIES ENFORCEMENT         //
     //--------------------------------------//
-    function setApprovalForAll(address operator, bool approved)
-        public
-        override
-        onlyAllowedOperatorApproval(operator)
-    {
+    function setApprovalForAll(address operator, bool approved) public override onlyAllowedOperatorApproval(operator) {
         super.setApprovalForAll(operator, approved);
     }
 
-    function approve(address operator, uint256 tokenId)
-        public
-        payable
-        override
-        onlyAllowedOperatorApproval(operator)
-    {
+    function approve(address operator, uint256 tokenId) public payable override onlyAllowedOperatorApproval(operator) {
         super.approve(operator, tokenId);
     }
 
@@ -171,13 +173,7 @@ contract FadingMemories is ERC721A, Ownable, OperatorFilterer, ERC2981 {
         _setDefaultRoyalty(receiver, feeNumerator);
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721A, ERC2981)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721A, ERC2981) returns (bool) {
         return ERC721A.supportsInterface(interfaceId) || ERC2981.supportsInterface(interfaceId);
     }
 
@@ -185,7 +181,7 @@ contract FadingMemories is ERC721A, Ownable, OperatorFilterer, ERC2981 {
     //              WITHDRAW                //
     //--------------------------------------//
     function withdraw() external onlyOwner {
-        (bool success,) = payable(owner()).call{value:address(this).balance}("");
+        (bool success,) = payable(owner()).call{value: address(this).balance}("");
         assert(success);
     }
 
